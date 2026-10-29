@@ -3,7 +3,8 @@ import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
-import { conn } from './src/config/database'
+import { conn } from './src/config/database.js'
+import { userRoutes } from './src/routes/user.routes.js'
 
 //constante de express en memoria
 const app = express()
@@ -13,6 +14,9 @@ const PORT = process.env.PORT || 3003
 app.use(express.json())
 app.use(cors())
 app.use(cookieParser())
+
+//rutas generales
+app.use('/api', userRoutes)
 
 //dejamos server en escucha
 app.listen(PORT, async () => {
