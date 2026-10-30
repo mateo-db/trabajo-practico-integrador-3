@@ -72,3 +72,14 @@ export const registerUserValidations = [
     .isLength({min: 8, max: 15}).withMessage('El número de teléfono debe ser un texto entre 8 y 15 números')
     .isMobilePhone('es-AR').withMessage('El número de teléfono debe ser de formato válido (Argentina) (Ej: +5491123456789)')
 ]
+
+export const loginUserValidations = [
+    body('email')
+    .trim() 
+    .notEmpty().withMessage('Su email es obligatorio para loguearse') 
+    .isEmail().withMessage('El email debe ser de un formato válido (ejemplo: abc123@gmail.com'),
+    body('password')
+    .trim()
+    .notEmpty().withMessage('Su contraseña es obligatoria para loguearse')
+]
+
