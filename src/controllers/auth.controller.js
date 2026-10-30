@@ -1,4 +1,5 @@
-import { hashPassword } from "../helpers/bcrypt.helper.js"
+import { matchedData } from "express-validator"
+import { comparePassword, hashPassword } from "../helpers/bcrypt.helper.js"
 import { generateToken } from "../helpers/jwt.helper.js"
 import { UserModel } from "../models/user.model.js"
 
@@ -8,7 +9,7 @@ export const registerUser = async (req, res) => {
         //desestructuro campos desde el body para el registro del usuario, incluyendo el documento embebido profile
         const { username, email, password, role, profile } = matchedData(req, {locations: ["body"]})
         const { firstName, lastName, birthDate, phone } = profile //desestructuro a su vez profile para conservar el objeto del documento embebido y extraer sus campos para la creación del usuario junto a su perfil
-        const hashedPassword = hashPassword(password)
+        const hashedPassword = await hashPassword(password)
         const newUser = await UserModel.create({
             username,
             email,
@@ -39,10 +40,12 @@ export const logUserIn = async (req, res) => {
     try {
         const { email, password } = matchedData(req, {locations: ["body"]})
 
+        console.log('Email que nos llega: ', email)
         //buscamos si ese usuario está registrado en nuestra base de datos
         //como email fue configurado como campo único (unique: true), podemos usarlo como identificador del usuario específico a buscar
 
         const registeredUser = await UserModel.findOne({ email }) //buscamos por email
+        console.log('Valor devuelto de registered user: ', registeredUser)
 
         //validamos: si no encontramos al usuario (es decir, si no existe ese usuario registrado), retornamos código 401 (Unauthorized) y mensaje de explicación
         if (!registeredUser) {
@@ -95,7 +98,7 @@ export const logUserIn = async (req, res) => {
 }
 
 //cerrar la sesión del usuario (logout)
-export const logUserOut = async (req, res) => {
+export const logUserOut = async (_req, res) => {
     try {
         //limpiamos la cookie de autenticación
         res.clearCookie("token")
@@ -106,6 +109,33 @@ export const logUserOut = async (req, res) => {
         console.error(error)
         return res.status(500).json({
             message: "Error interno en el servidor"
+        })
+    }
+}
+
+export const getUserProfile = async (req, res) => {
+    try {
+        //desestructuramos el id desde el token del usuario autenticado en la sesión
+        const loggedUserId = req.data.id //a través de notacion de puntos ya accedo al valor del campo "id" en objeto data, entonces simplemente lo guardo en memoria en variable "loggedUserId"
+        
+        //buscamos usuario en bd
+        const userFound = await UserModel.findById(loggedUserId)
+        if (!userFound) {
+            return res.status(404).json({
+                message: 'El usuario del que quiere mostrar el perfil no se encuentra registrado'
+            })
+        }
+        
+        //retornamos código de estado, mensaje y data accediendo al perfil del modelo encontrado (un objeto, lo hacemos con notación de puntos)
+        return res.status(200).json({
+            message: 'Perfil del usuario autenticado: ',
+            data: userFound.profile
+        })
+        
+    } catch (error) {
+        console.error(error)
+        res.status(500).json({
+            message: `Error interno del servidor al traer perfil de usuario autenticado: ${error.message}`
         })
     }
 }
