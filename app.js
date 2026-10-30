@@ -5,6 +5,7 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import { conn } from './src/config/database.js'
 import { userRoutes } from './src/routes/user.routes.js'
+import { authRoutes } from './src/routes/auth.routes.js'
 
 //constante de express en memoria
 const app = express()
@@ -16,6 +17,7 @@ app.use(cors())
 app.use(cookieParser())
 
 //rutas generales
+app.use('/api', authRoutes)
 app.use('/api', userRoutes)
 
 //dejamos server en escucha
