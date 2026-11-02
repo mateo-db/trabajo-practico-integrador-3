@@ -84,50 +84,6 @@ export const loginUserValidations = [
 ]
 
 export const updateUserProfileValidations = [
-    body('username')
-    .optional()
-    .trim() 
-    .notEmpty().withMessage('El nombre de usuario es obligatorio') 
-    .isLength({ min: 3, max: 20}).withMessage('El nombre de usuario debe ser un texto de entre 3 a 20 carácteres')
-    .isAlphanumeric().withMessage('El nombre de usuario debe ser un texto alfanúmerico (contener letras y números)')
-    .bail()
-    .custom(async (username) => {
-        const usernameExists = await UserModel.findOne({ username })
-        if (usernameExists) {
-            throw new Error('Ese nombre de usuario ya está en uso')
-        }
-        return true
-    }),
-    body('email')
-    .optional()
-    .trim() 
-    .notEmpty().withMessage('El email es obligatorio') 
-    .isString().withMessage('El email debe ser un texto')
-    .isEmail().withMessage('El email debe ser de un formato válido (ejemplo: abc123@gmail.com')
-    .bail() 
-    .custom(async (email) => {
-        const emailExists = await UserModel.findOne({ email })
-        if (emailExists) {
-            throw new Error('Ese email ya está en uso')
-        }
-        return true
-    }),
-    body('password')
-    .optional()
-    .trim()
-    .notEmpty().withMessage('La contraseña es obligatoria')
-    .isString().withMessage('La contraseña debe ser un texto')
-    .isStrongPassword({
-        minLength: 8,
-        minUppercase: 1,
-        minLowercase: 1,
-        minNumbers: 1,
-        minSymbols: 0
-    }).withMessage('La contraseña debe ser mínimo 8 carácteres, incluyendo 1 maýuscula, minúscula y número'),
-    body('role')
-    .optional()
-    .isString().withMessage('El rol debe ser texto')
-    .isIn(['user', 'admin']),
     body('profile.firstName')
     .optional()
     .trim() 
