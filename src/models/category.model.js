@@ -11,6 +11,10 @@ const categorySchema = new Schema({
         type: String,
         max: 200
     }
+},
+{
+    timestamps: true,
+    versionKey: false
 })
 
 //virtual de category hacia eventos (que eventos tienen esta categoría)

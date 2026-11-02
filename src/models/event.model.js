@@ -36,8 +36,6 @@ const eventSchema = new Schema({
         default: 'scheduled'
     },
     location: {
-        unique: true, //documento embebido con relación 1:1 hacia event, aplicamos unique: true
-        required: true,
         venue: {
             type: String,
             min: 3,
@@ -63,6 +61,10 @@ const eventSchema = new Schema({
         type: Types.ObjectId,
         ref: 'Category'
     }]
+},
+{
+    timestamps: true,
+    versionKey: false,
 })
 
 export const EventModel = model('Event', eventSchema)

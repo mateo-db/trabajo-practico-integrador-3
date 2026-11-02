@@ -8,7 +8,7 @@ const userSchema = new Schema({
         required: true,
         unique: true,
         min: 3,
-        max: 2
+        max: 20
     },
     email: {
         type: String,
@@ -50,7 +50,12 @@ const userSchema = new Schema({
         type: Date,
         default: null
     }
-})
+},
+{
+    timestamps: true,
+    versionKey: false,
+}
+)
 
 //virtual para crear relación no física desde modelo user hacia modelo events
 userSchema.virtual('user_events', {
