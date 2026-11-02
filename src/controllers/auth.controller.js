@@ -113,6 +113,7 @@ export const logUserOut = async (_req, res) => {
     }
 }
 
+//traer perfil de usuario autenticado
 export const getUserProfile = async (req, res) => {
     try {
         //desestructuramos el id desde el token del usuario autenticado en la sesión
@@ -136,6 +137,43 @@ export const getUserProfile = async (req, res) => {
         console.error(error)
         res.status(500).json({
             message: `Error interno del servidor al traer perfil de usuario autenticado: ${error.message}`
+        })
+    }
+}
+
+//actualizar perfil de usuario autenticado
+export const updateUserProfile = async (req, res) => {
+    try {
+        const userId = req.data.id //accedemos al valor del id del usuario autenticado 
+        const dataToUpdate = matchedData(req, {locations: ['body']})
+        const userFound = await UserModel.findById(userId)
+
+        //creamos copias de perfil original y perfil con campos a actualizar dentro de un nuevo objeto, esto conservará los campos originales del perfil y solo actualizará lo que el usuario envió por el body
+        //esto es debido a un comportamiento de JavaScript, donde al encontrar propiedades repetidas en un objeto, prevalece el valor de la última propiedad repetida que aparece
+        //por eso, el orden acá es crucial: primero hacemos copia del perfil original y luego copia de lo enviado desde el body
+        const profileUpdate = {
+            ...userFound.profile,
+            ...dataToUpdate.profile
+        }
+
+        //indicamos el id del modelo a actualizar y con $set modificamos señalando propiedad/clave a actualizar y el nuevo valor que tendrá esta propiedad
+        const profileUpdated = await UserModel.findByIdAndUpdate(userId, {
+            $set: {
+                profile: profileUpdate
+            },
+        }, {
+            returnDocument: "after",
+            runValidators: true //indicamos a mongoose que ejecute las validaciones para el schema, ya que por defecto para las actualizaciones con el método findByIdAndUpdate() no lo hace
+        })
+
+        return res.status(200).json({
+            message: "Perfil del usuario autenticado actualizado con éxito: ",
+            data: profileUpdated
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: `Error interno del servidor al actualizar perfil del usuario autenticado: ${error.message}`
         })
     }
 }
