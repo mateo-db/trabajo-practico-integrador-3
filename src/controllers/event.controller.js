@@ -84,3 +84,34 @@ export const getUserEvents = async (req, res) => {
         })
     }
 }
+
+export const getEventById = async (req, res) => {
+    try {
+        const { eventId } = matchedData(req, {locations: ['params']})
+        const eventById = await EventModel.findById(eventId)
+        .populate({
+            path: 'organizer',
+            select: 'profile role -_id',
+        })
+        .populate({
+            path: 'categories',
+            select: 'name description -_id'
+        })
+        
+        if (!eventById) {
+            return res.status(404).json({
+                message: 'Ese evento a buscar por su id no existe en la BD'
+            })
+        }
+
+        return res.status(200).json({
+            message: 'Evento encontrado exitosamente: ',
+            data: eventById
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error interno del servidor al traer evento'
+        })
+    }
+}
+

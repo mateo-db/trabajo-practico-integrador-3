@@ -80,3 +80,16 @@ export const createEventValidations = [
         return true 
     })
 ]
+
+export const eventIdValidations = [
+    param('eventId')
+    .isMongoId().withMessage('El id del evento debe ser un ObjectId de MongoDB')
+    .bail()
+    .custom(async (eventId) => {
+        const eventExists = await EventModel.findById(eventId)
+        if (!eventExists) {
+            throw new Error('Ese evento no existe')
+        }
+        return true 
+    })
+]
