@@ -2,7 +2,7 @@ import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
 import { createEventValidations } from "../middlewares/validations/event.validations.js";
 import { checkValidationsResult } from "../middlewares/validationResultHandler.js";
-import { createEvent } from "../controllers/event.controller.js";
+import { createEvent, getAllEvents } from "../controllers/event.controller.js";
 
 export const eventRoutes = Router()
 
@@ -10,7 +10,7 @@ export const eventRoutes = Router()
 eventRoutes.post('/events', authMiddleware, createEventValidations, checkValidationsResult, createEvent)
 
 // //listar todos los eventos poblando su organizer y categories (usuario autenticado)
-// eventRoutes.get('/events')
+eventRoutes.get('/events', authMiddleware, getAllEvents)
 
 // //listar los eventos del usuario logueado (usuario autenticado)
 // eventRoutes.get('/events/my')

@@ -39,3 +39,26 @@ export const createEvent = async (req, res) => {
     }
 }
 
+export const getAllEvents = async (_req, res) => {
+    try {
+        const allEvents = await EventModel.find()
+        .populate({
+            path: 'organizer',
+            select: 'profile role -_id',
+        })
+        .populate({
+            path: 'categories',
+            select: 'name description -_id'
+        })
+
+        return res.status(200).json({
+            message: 'Todos los eventos: ',
+            data: allEvents
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error interno del servidor al traer los eventos'
+        })
+    }
+
+}
