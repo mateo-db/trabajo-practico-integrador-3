@@ -62,3 +62,25 @@ export const getAllEvents = async (_req, res) => {
     }
 
 }
+
+export const getUserEvents = async (req, res) => {
+    try {
+        const userId = req.data.id
+        const userEvents = await EventModel.find({organizer: userId})
+        
+        if (!userEvents) {
+            return res.status(404).json({
+                message: 'El usuario de esta sesión todavía no tiene eventos organizados por él'
+            })
+        }
+
+        return res.status(200).json({
+            message: 'Tus eventos: ',
+            data: userEvents
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error interno del servidor al traer eventos del usuario'
+        })
+    }
+}
