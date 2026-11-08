@@ -115,3 +115,48 @@ export const getEventById = async (req, res) => {
     }
 }
 
+export const updateEventById = async (req, res) => {
+    try {
+        const { eventId } = matchedData(req, {locations: ['params']})
+        console.log(eventId)
+        const { location, categories, ...otherData} = matchedData(req, {locations: ['body']})
+        const eventFound = await EventModel.findById(eventId)
+        console.log(eventFound)
+
+        if (!eventFound) {
+            return res.status(404).json({
+                message: 'El evento a actualizar no se ha encontrado'
+            })
+        }
+
+        const locationUpdate = {
+            ...eventFound.location,
+            ...location
+        }
+
+        const eventUpdated = await EventModel.findByIdAndUpdate(eventId, {
+            ...otherData,
+            location: locationUpdate,
+            $addToSet: {
+                categories: {
+                    $each: categories
+                }
+            }
+        },
+        {
+            returnDocument: 'after'
+            
+        })
+        
+        return res.status(200).json({
+            message: 'Se actualizó evento con éxito: ',
+            data: eventUpdated
+        })
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: `Error interno del servidor al intentar actualizar evento: ${error.message}`
+        })
+    }
+}
