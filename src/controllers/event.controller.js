@@ -160,3 +160,27 @@ export const updateEventById = async (req, res) => {
         })
     }
 }
+
+export const deleteEventById = async (req, res) => {
+    try {
+        const { eventId } = matchedData(req, {locations: ['params']})
+        const eventFound = await EventModel.findById(eventId)
+        if (!eventFound) {
+            return res.status(404).json({
+                message: 'El evento a eliminar no se ha encontrado'
+            })
+        }
+
+        await EventModel.findByIdAndDelete(eventId)
+
+        return res.status(200).json({
+            message: 'Evento eliminado con éxito'
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: `Error interno del servidor al intentar eliminar evento: ${error.message}`
+        })
+    }
+    
+}

@@ -1,8 +1,17 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/authMiddleware.js";
-import { createEventValidations, eventIdValidations, updateEventValidations } from "../middlewares/validations/event.validations.js";
+import { 
+    createEventValidations, 
+    eventIdValidations, 
+    updateEventValidations } from "../middlewares/validations/event.validations.js";
 import { checkValidationsResult } from "../middlewares/validationResultHandler.js";
-import { createEvent, getAllEvents, getEventById, getUserEvents, updateEventById } from "../controllers/event.controller.js";
+import { 
+    createEvent, 
+    deleteEventById, 
+    getAllEvents, 
+    getEventById, 
+    getUserEvents, 
+    updateEventById } from "../controllers/event.controller.js";
 import { ownerOrAdminMiddleware } from "../middlewares/ownerOrAdminMiddleware.js";
 
 export const eventRoutes = Router()
@@ -23,5 +32,5 @@ eventRoutes.get('/events/my', authMiddleware, getUserEvents)
 eventRoutes.put('/events/:eventId', authMiddleware, ownerOrAdminMiddleware, eventIdValidations, updateEventValidations, checkValidationsResult, updateEventById)
 
 // //eliminar físicamente un evento por su id (solo organizador o admin)
-// userRoutes.delete('/events/:eventId')
+eventRoutes.delete('/events/:eventId', eventIdValidations, checkValidationsResult, deleteEventById)
 
