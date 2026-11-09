@@ -45,3 +45,44 @@ export const getUserById = async (req, res) => {
         })
     }
 }
+
+//actualización de usuario por su id (solo admin)
+export const updateUserById = async (req, res) => {
+    try {
+        const { userId } = matchedData(req, {locations: ['params']}) //desestructuramos valor de parámetro userId y guardamos en memoria
+        const dataToUpdate = matchedData(req, {locations: ['body']}) //obtenemos datos provenientes del body que pasaron validaciones
+        const userFound = await UserModel.findById(userId) //buscamos modelo por id que vino desde params
+
+        if (!userFound) {
+            return res.status(404).json({
+                message: "Usuario a actualizar no encontrado"
+            })
+        }
+
+
+        //preparamos actualización de propiedad embebida profile
+        const embeddedUpdate = {
+            ...userFound.profile, //1ro, copia de perfil original del modelo
+            ...dataToUpdate.profile //2do, copia de la actualización de profile que vino por body
+        }
+
+        //realizamos actualización sobre modelo indicando id y campos con valores actualizados
+        const userUpdated = await UserModel.findByIdAndUpdate(userId, {
+            ...dataToUpdate, //descomponemos los campos que hayan venido desde el body a actualizar y los incorporamos dentro del nuevo objeto
+            profile: embeddedUpdate //asignamos a la propiedad embebida profile la actualización que preparamos, de modo que no se pierdan datos y se modifique solo lo que vino por body
+        },
+        {
+            returnDocument: 'after'
+        })
+
+        return res.status(200).json({
+            message: 'Usuario actualizado con éxito: ',
+            data: userUpdated
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: "Error interno del servidor al intentar actualizar el usuario"
+        })
+    }
+}
