@@ -1,5 +1,6 @@
 import { matchedData } from "express-validator";
 import { CategoryModel } from "../models/category.model.js";
+import { EventModel } from "../models/event.model.js";
 
 //crear una categoria (solo admin)
 export const createCategory = async (req, res) => {
@@ -98,6 +99,41 @@ export const updateCategoryById = async (req, res) => {
         console.error(error)
         return res.status(500).json({
             message: 'Error interno del servidor al intentar actualizar categoria'
+        })
+    }
+}
+
+//eliminar una categoría con eliminación en cascada
+export const deleteCategoryById = async (req, res) => {
+    try {
+        const { categoryId } = matchedData(req, {locations: ['params']})
+        const categoryFound = await CategoryModel.findById(categoryId)
+
+        if (!categoryFound) {
+            return res.status(404).json({
+                message: 'La categoría a eliminar no fue encontrada'
+            })
+        }
+
+        //antes de eliminar físicamente la categoría, realizo la "eliminación en cascada" quitando la categoría de todos los eventos a los que estuvo relacionado
+        await EventModel.updateMany({
+            categories: categoryId
+        },
+        {
+            $pull: {
+                categories: categoryId
+            }
+        })
+
+        await CategoryModel.findByIdAndDelete(categoryId)
+
+        return res.status(200).json({
+            message: 'Categoría eliminada con éxito'
+        })
+
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error interno del servidor al intentar eliminar categoría'
         })
     }
 }
