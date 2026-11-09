@@ -21,3 +21,16 @@ export const createCategoryValidations = [
     .isString('La descripción de la categoría debe ser texto')
     .isLength({max: 200})
 ]
+
+export const categoryIdValidations = [
+    param('categoryId')
+    .isMongoId().withMessage('El id de la categoría debe ser un ObjectId de MongoDB')
+    .bail()
+    .custom(async (categoryId) => {
+        const categoryExists = await CategoryModel.findById(categoryId)
+        if (!categoryExists) {
+            throw new Error('Esa categoría no existe')
+        }
+        return true 
+    })
+]
