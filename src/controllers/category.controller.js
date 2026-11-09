@@ -1,7 +1,7 @@
 import { matchedData } from "express-validator";
 import { CategoryModel } from "../models/category.model.js";
 
-
+//crear una categoria (solo admin)
 export const createCategory = async (req, res) => {
     try {
         const { name, description } = matchedData(req, {locations: ['body']})
@@ -21,3 +21,26 @@ export const createCategory = async (req, res) => {
         })
     }
 }
+
+//listar categorias (usuario autenticado)
+export const getAllCategories = async (_req, res) => {
+    try {
+        const allCategories = await CategoryModel.find()
+
+        if (!allCategories) {
+            return res.status(404).json({
+                message: 'No se encontraron categorías registradas'
+            })
+        }
+        return res.status(200).json({
+            message: 'Se encontró categorias: ',
+            data: allCategories
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: 'Error interno del servidor al intentar listar categorias'
+        })
+    }
+}
+
