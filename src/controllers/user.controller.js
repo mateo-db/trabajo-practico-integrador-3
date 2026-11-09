@@ -17,7 +17,31 @@ export const getAllUsers = async (_req, res) => {
     } catch (error) {
         console.log(error)
         return res.status(500).json({
-            message: "Error interno del servidor"
+            message: "Error interno del servidor al intentar listar usuarios activos"
+        })
+    }
+}
+
+//obtener un usuario activo con sus eventos (solo admin)
+export const getUserById = async (req, res) => {
+    try {
+        const { userId } = matchedData(req, {locations: ['params']})
+        const userById = await UserModel.findOne({
+            _id: userId,
+            deletedAt: null
+        }, 'profile role')
+        .populate({
+            path: 'user_events',
+            select: 'title description -_id'
+        })
+        return res.status(200).json({
+            message: `Usuario activo con id y sus eventos encontrados`,
+            data: userById
+        })
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: "Error interno del servidor al listar usuario activo por id"
         })
     }
 }
