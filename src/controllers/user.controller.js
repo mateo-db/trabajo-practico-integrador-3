@@ -86,3 +86,33 @@ export const updateUserById = async (req, res) => {
         })
     }
 }
+
+//eliminación lógica de usuario por su id y eliminación en cascada de eventos relacionados (solo admin)
+export const deleteUserById = async (req, res) => {
+    try {
+        const { userId } = matchedData(req, {locations: ['params']})
+        const userFound = await UserModel.findById(userId)
+
+            if (!userFound) {
+                return res.status(404).json({
+                    message: "Usuario a eliminar no encontrado"
+                })
+            }
+
+        await EventModel.deleteMany({ organizer: userId })
+
+        const userDelLogically = await UserModel.findByIdAndUpdate(userId, {
+            deletedAt: new Date()
+        })
+
+        res.status(200).json({
+            message: 'Usuario eliminado lógicamente con éxito: ',
+            data: userDelLogically
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error interno del servidor al intentar eliminar usuario por id'
+        })
+    }
+}
+
