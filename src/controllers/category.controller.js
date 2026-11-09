@@ -74,3 +74,30 @@ export const getCategoryById = async (req, res) => {
         })
     }
 }
+
+//actualizar una categoría (solo admin)
+export const updateCategoryById = async (req, res) => {
+    try {
+        const { categoryId } = matchedData(req, {locations: ['params']})
+        const data = matchedData(req, {locations: ['body']})
+        const categoryFound = await CategoryModel.findById(categoryId)
+
+        if (!categoryFound) {
+            return res.status(404).json({
+                message: 'La categoría a actualizar no fue encontrada'
+            })
+        }
+
+        const categoryUpdated = await CategoryModel.findByIdAndUpdate(categoryId, data, { returnDocument: 'after' })
+
+        return res.status(200).json({
+            message: 'Categoría actualizada con éxito: ',
+            data: categoryUpdated
+        })
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({
+            message: 'Error interno del servidor al intentar actualizar categoria'
+        })
+    }
+}
