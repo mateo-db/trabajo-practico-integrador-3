@@ -1,6 +1,6 @@
 import { verifyToken } from "../helpers/jwt.helper.js";
 
-export const authMiddleware = async (req, res) => {
+export const authMiddleware = async (req, res, next) => {
     try {
         //leemos token desde las cookies en la request
         const evaluatedToken = req.cookies.token
