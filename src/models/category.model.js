@@ -14,7 +14,9 @@ const categorySchema = new Schema({
 },
 {
     timestamps: true,
-    versionKey: false
+    versionKey: false,
+    toJSON: {virtuals: true},
+    toObject: {virtuals: true}
 })
 
 //virtual de category hacia eventos (que eventos tienen esta categoría)
